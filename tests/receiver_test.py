@@ -162,7 +162,7 @@ class ReceiveTaskModelTestCase(helper.CPWebCase):
         self.assertHeader('Content-Type', 'application/json')
         self.assertStatus('200 OK')
         response_data = json.loads(self.body.decode('utf-8'))
-
+        sleep(2)
         self.getPage('/get/{0}'.format(response_data))
         self.assertHeader('Content-Type', 'application/json')
         self.assertStatus('200 OK')
