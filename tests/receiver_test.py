@@ -11,11 +11,13 @@
 import functools
 import json
 import os
+import threading
 import unittest
 from time import sleep
 
 import cherrypy
 from cherrypy.test import helper
+from celery.bin.celery import main as celery_main
 import playhouse.db_url
 
 from cloudevents.constants import SPEC_VERSION
@@ -94,6 +96,36 @@ class ReceiveTaskModelTestCase(helper.CPWebCase):
             'source': '/cloudevents/io',
             'data': [],
         }
+
+        def run_celery_worker():
+            """Run the main solo worker."""
+            return celery_main([
+                'celery', '-A', 'receiver_test', 'worker', '--pool', 'solo',
+                '--quiet', '-b', 'redis://127.0.0.1:6379/10'
+            ])
+
+        self.celery_thread = threading.Thread(target=run_celery_worker)
+        self.celery_thread.start()
+        sleep(3)
+
+    # pylint: disable=invalid-name
+    def tearDown(self):
+        """Tear down the test and remove local state."""
+        try:
+            celery_main([
+                'celery', '-A', 'receiver_test', 'control',
+                '-b', 'redis://127.0.0.1:6379/10', 'shutdown'
+            ])
+        except SystemExit:
+            pass
+        self.celery_thread.join()
+        try:
+            celery_main([
+                'celery', '-A', 'receiver_test', '-b', 'redis://127.0.0.1:6379/10',
+                '--force', 'purge'
+            ])
+        except SystemExit:
+            pass
 
     @staticmethod
     def setup_server():

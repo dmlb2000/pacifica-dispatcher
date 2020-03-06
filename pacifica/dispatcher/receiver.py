@@ -38,7 +38,7 @@ def create_peewee_model(passed_db: peewee.Database) -> object:
     def closed_db_context(ctxt_db=passed_db):
         """Context to refresh db connection."""
         try:
-            if not ctxt_db.is_closed():
+            if not ctxt_db.is_closed():  # pragma: no cover this just in case
                 ctxt_db.close()
             ctxt_db.connect()
             yield ctxt_db

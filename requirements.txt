@@ -3,7 +3,7 @@ cherrypy
 cloudevents-python
 jsonpath2
 pacifica-downloader
+pacifica-namespace
 pacifica-uploader
 peewee
 setuptools
-six

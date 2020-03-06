@@ -6,6 +6,8 @@ environment:
   PGUSER: postgres
   PGPASSWORD: Password12!
   PGSQL_PATH: C:\Program Files\PostgreSQL\9.6
+  DATABASE_URL: "postgres://postgres:Password12!@localhost/pacifica_dispatcher"
+  BROKER_URL: "redis://127.0.0.1:6379/10"
   matrix:
     - PYTHON: C:\Python36-x64
 
@@ -82,7 +84,7 @@ before_test:
       Get-Content icelery-output.log; Get-Content icelery-error.log;
       Invoke-WebRequest http://127.0.0.1:8181/status/users/search/dmlb2001/simple -TimeoutSec 1800;
       Invoke-WebRequest 'http://127.0.0.1:8066/get_state?job_id=1234';
-      Invoke-WebRequest 'http://127.0.0.1:8051/getid?range=42&mode=test_mode';
+      Invoke-WebRequest 'http://127.0.0.1:8051/getid?range=200&mode=file';
       Invoke-WebRequest http://127.0.0.1:8080/1234;
       echo 'Done';
 
@@ -93,11 +95,5 @@ test_script:
       mkdir C:\tmp; C:\pacifica\Scripts\activate.ps1;
       pre-commit run -a;
       pip install .; cd tests;
-      $env:DATABASE_URL = "postgres://postgres:Password12!@localhost/pacifica_dispatcher";
-      $env:BROKER_URL = "redis://127.0.0.1:6379/0";
-      $celery_proc = Start-Process C:\pacifica\Scripts\coverage.exe -ArgumentList "run --include=*/site-packages/pacifica/dispatcher/* -p -m celery -A receiver_test worker -l info -c 1 -P solo" -RedirectStandardError celery-error.log -RedirectStandardOutput celery-output.log;
-      coverage run --include='*/site-packages/pacifica/dispatcher/*' -m pytest -xv;
-      python -m celery -A receiver_test control shutdown;
-      $celery_proc | Wait-Process;
-      ls .coverage* | %{ python -m coverage combine -a $_.name };
+      coverage run --include='*/pacifica/dispatcher/*' -m pytest -xsv;
       coverage report -m --fail-under=100;

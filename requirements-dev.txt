@@ -1,4 +1,5 @@
 -r requirements.txt
+celery[redis]
 coverage
 eventlet
 pacifica-archiveinterface
@@ -10,8 +11,9 @@ pacifica-policy
 pacifica-uniqueid
 pep257
 pre-commit
-pylint
+pylint>2
 pytest
 recommonmark
+redis
 requests
 setuptools
