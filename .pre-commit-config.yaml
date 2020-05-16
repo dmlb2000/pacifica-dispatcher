@@ -1,11 +1,11 @@
 repos:
--   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v1.5
-    hooks:
+    -   repo: https://github.com/pre-commit/mirrors-autopep8
+        rev: v1.5.2
+        hooks:
             -   id: autopep8
--   repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
-    hooks:
+    -   repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v2.5.0
+        hooks:
             -   id: fix-encoding-pragma
             -   id: trailing-whitespace
             -   id: flake8
@@ -27,16 +27,16 @@ repos:
             -   id: name-tests-test
             -   id: pretty-format-json
                 args:
-                  - --autofix
-                  - --top-keys=_id
+                    - --autofix
+                    - --top-keys=_id
             -   id: sort-simple-yaml
                 files: '.yaml$'
             -   id: check-symlinks
             -   id: check-yaml
             -   id: detect-private-key
             -   id: requirements-txt-fixer
--   repo: local
-    hooks:
+    -   repo: local
+        hooks:
             -   id: pep257
                 name: pep257
                 entry: python -m pep257
@@ -47,8 +47,8 @@ repos:
                 entry: python -m pylint --rcfile=pylintrc
                 language: system
                 types: [python]
--   repo: git://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.1.7
-    hooks:
-    -   id: remove-tabs
-    -   id: remove-crlf
+    -   repo: https://github.com/Lucas-C/pre-commit-hooks
+        rev: v1.1.7
+        hooks:
+            -   id: remove-tabs
+            -   id: remove-crlf

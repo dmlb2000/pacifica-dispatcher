@@ -2,15 +2,15 @@ language: python
 dist: bionic
 python: 3.6
 stages:
-- lint
-- test
-- deploy
+  - lint
+  - test
+  - test-docs
+  - deploy
 env:
   DATABASE_URL: postgres://postgres:@127.0.0.1:5432/pacifica_dispatcher
   BROKER_URL: redis://127.0.0.1:6379/10
 
 script:
-  - pip install .
   - cd tests
   - coverage run --include='*/pacifica/dispatcher/*' -m pytest -xsv
   - coverage report -m --fail-under 100
@@ -29,32 +29,42 @@ before_script:
   - curl 'http://127.0.0.1:8051/getid?range=200&mode=file'
 jobs:
   include:
-  - stage: lint
-    before_script: skip
-    script: pre-commit run -a
-  - python: 3.7
-    before_script: skip
-    script: pre-commit run -a
-  - python: 3.8
-    before_script: skip
-    script: pre-commit run -a
-  - stage: test
-  - python: 3.7
-  - python: 3.8
-  - stage: deploy
-    services: []
-    python: 3.8
-    language: python
-    before_script: skip
-    script: skip
-    deploy:
-      skip_cleanup: true
-      provider: pypi
-      user: dmlb2000
-      distributions: sdist bdist_wheel
-      password:
-        secure: ig70TaXbJ+4N3X9KYxTb0VbUckqPXhHjgOWZtMLfhAw7GdE4BGqBk01YH23GTXwWOe3FDItLUjkvYMHEs7D2xeYlb6NXT07ews4nWBq3XxZ2NSuDcQCHyQ0KAeY2MeKm7hMv/pGeHYWtnozgNckQ2Aqaty8IE72Go93kUGHY7UaiGt8yy4hi5X0b1NJFEybBf0BSA8yvPxyTSCIhhkWKAwheABDa4MmJootuVpeNVzSwfWnguHsnv6U2ZEAMJcOIQAeEIUMiOxIIkFS0Hv1vdeKuaSJdmrLXLXV/tezaEC7o+Ajb1nsBqaZUiCf0ZfUS1MeEiyzA40JNHkszKsN0GnxpzYVuWql4u7YaWkyOcU9Pgd/os0aCBw0e18W4p8qtuHqiGKtpTUxEgeWFG9WfbJOchfcDVo7VI/GZ2viNmIPUnbVi4cp2Rd4btNdrhyG80eLnntME0QoVYRDOL+xvkkp6ShQ7yT/LS6S9pHS/zGtnGnj/mfuzsJNmkwWIdOmUFFILfqBzVDwHlkrrRjESq9IohkU84rPxSodkVB9K4Ky3kX1mErQM+rOtl7Cg+FLaf/h/r+QLCczonJSrvpmsiCb4kp+LG/1mlZztK3nEXcAlTTRgiKYSgfROaRQdRBBwl9pRDmS9fIGgiq9kX8KZKnyOnKDXeyk85bBvseT67+s=
-      on:
-        tags: true
+    - stage: lint
+      before_script: skip
+      script: pre-commit run -a
+    - python: 3.7
+      before_script: skip
+      script: pre-commit run -a
+    - python: 3.8
+      before_script: skip
+      script: pre-commit run -a
+    - stage: test
+    - python: 3.7
+    - python: 3.8
+    - stage: test-docs
+      python: 3.8
+      before_script: skip
+      script: >
+        cd docs;
+        sphinx-build -T -E -b readthedocs -d _build/doctrees-readthedocs -D language=en . _build/html;
+        sphinx-build -T -b readthedocssinglehtmllocalmedia -d _build/doctrees-readthedocssinglehtmllocalmedia -D language=en . _build/localmedia;
+        sphinx-build -b latex -D language=en -d _build/doctrees . _build/latex;
+        sphinx-build -T -b epub -d _build/doctrees-epub -D language=en . _build/epub
+    - stage: deploy
+      services: []
+      python: 3.8
+      language: python
+      before_script: skip
+      script: skip
+      deploy:
+        skip_cleanup: true
+        provider: pypi
+        user: dmlb2000
+        distributions: sdist bdist_wheel
+        password:
+          secure: ig70TaXbJ+4N3X9KYxTb0VbUckqPXhHjgOWZtMLfhAw7GdE4BGqBk01YH23GTXwWOe3FDItLUjkvYMHEs7D2xeYlb6NXT07ews4nWBq3XxZ2NSuDcQCHyQ0KAeY2MeKm7hMv/pGeHYWtnozgNckQ2Aqaty8IE72Go93kUGHY7UaiGt8yy4hi5X0b1NJFEybBf0BSA8yvPxyTSCIhhkWKAwheABDa4MmJootuVpeNVzSwfWnguHsnv6U2ZEAMJcOIQAeEIUMiOxIIkFS0Hv1vdeKuaSJdmrLXLXV/tezaEC7o+Ajb1nsBqaZUiCf0ZfUS1MeEiyzA40JNHkszKsN0GnxpzYVuWql4u7YaWkyOcU9Pgd/os0aCBw0e18W4p8qtuHqiGKtpTUxEgeWFG9WfbJOchfcDVo7VI/GZ2viNmIPUnbVi4cp2Rd4btNdrhyG80eLnntME0QoVYRDOL+xvkkp6ShQ7yT/LS6S9pHS/zGtnGnj/mfuzsJNmkwWIdOmUFFILfqBzVDwHlkrrRjESq9IohkU84rPxSodkVB9K4Ky3kX1mErQM+rOtl7Cg+FLaf/h/r+QLCczonJSrvpmsiCb4kp+LG/1mlZztK3nEXcAlTTRgiKYSgfROaRQdRBBwl9pRDmS9fIGgiq9kX8KZKnyOnKDXeyk85bBvseT67+s=
+        on:
+          tags: true
 install:
-- pip install -r requirements-dev.txt
+  - pip install -r requirements-dev.txt
+  - pip install .

@@ -21,8 +21,8 @@ install:
       & "$env:PYTHON\python.exe" -m virtualenv C:\pacifica;
       C:\pacifica\Scripts\activate.ps1;
       python -m pip install --upgrade pip setuptools wheel;
-      python -m pip install -r requirements-dev.txt;
-      python -m pip install 'celery[eventlet]' 'celery[redis]' redis eventlet;
+      pip install -r requirements-dev.txt;
+      pip install .;
 
 before_test:
   - ps: >
@@ -96,6 +96,6 @@ test_script:
   - ps: >
       mkdir C:\tmp; C:\pacifica\Scripts\activate.ps1;
       pre-commit run -a;
-      pip install .; cd tests;
+      cd tests;
       coverage run --include='*/pacifica/dispatcher/*' -m pytest -xsv;
       coverage report -m --fail-under=100;
