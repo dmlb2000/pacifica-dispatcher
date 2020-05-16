@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2020-05-15
+### Changed
+- Pull #18 Remove Requirements Pip>=20 by [@dmlb2000](https://github.com/dmlb2000)
+
 ## [0.2.4] - 2020-04-02
 ### Changed
 - Pull #16 Add Python 3.7 and 3.8 by [@dmlb2000](https://github.com/dmlb2000)
